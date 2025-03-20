@@ -1,5 +1,11 @@
 import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth/auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import prisma from "@/lib/prisma"; 
 
-export const GET = NextAuth(authOptions);
-export const POST = NextAuth(authOptions);
+export const authOptions = {
+  providers: [
+  ],
+  adapter: PrismaAdapter(prisma),
+};
+
+export default NextAuth(authOptions);

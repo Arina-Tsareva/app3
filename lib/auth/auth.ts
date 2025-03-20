@@ -13,21 +13,35 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Invalid credentials");
         }
+        const users = [
+          { id: "1", name: "User", email: "user@example.com", role: "user" },
+          { id: "2", name: "Admin", email: "admin@example.com", role: "admin" },
+        ];
 
-       
-        if (credentials.email === "test@example.com" && credentials.password === "password") {
-          return { id: "1", name: "Test User", email: "test@example.com" };
+        const user = users.find(u => u.email === credentials.email);
+        if (!user || credentials.password !== "password") {
+          throw new Error("Invalid email or password");
         }
 
-        throw new Error("Invalid email or password");
+        return user;
       },
     }),
   ],
-  pages: {
-    signIn: "/login", 
+  callbacks: {
+    async session({ session, token }) {
+      if (token) {
+        session.user = { ...session.user, id: token.id, role: token.role };
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
   },
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
 };
